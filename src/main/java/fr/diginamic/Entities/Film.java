@@ -119,9 +119,8 @@ public class Film {
 	@Override
 	public String toString() {
 		return "Film [id=" + id + ", id_imdb=" + id_imdb + ", nom=" + nom + ", annee=" + annee + ", rating=" + rating
-				+ ", url=" + url + ", lieu_tournage=" + lieu_tournage + ", resume=" + resume + ", roles=" + roles
-				+ ", pays=" + pays + ", langue=" + langue + ", acteurs=" + acteurs + ", genres=" + genres
-				+ ", realisateurs=" + realisateurs + "]";
+				+ ", url=" + url + ", lieu_tournage=" + lieu_tournage + ", resume=" + resume + ", pays=" + pays + 
+				", langue=" + langue + ", genres=" + genres + "]";
 	}
 	
 	/** Méthode de recherche de films par l'id IMDB

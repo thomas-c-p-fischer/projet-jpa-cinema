@@ -58,7 +58,7 @@ public class LieuNaissance {
 	 * @param String nom
 	 * @return LieuNaissance lieuNaissance
 	 */
-	public LieuNaissance rechercheParNom(List<LieuNaissance> lieuNaissances, String nom) {
+	public static LieuNaissance rechercheParNom(List<LieuNaissance> lieuNaissances, String nom) {
 		LieuNaissance lieuNaissance = null;
 		for(LieuNaissance l : lieuNaissances) {
 			if(l.getNom().equals(nom)) {

@@ -42,25 +42,17 @@ public class Role {
 	public Role() {
 	}
 
+	/** Constructeur pour la liste des Rôles
+	 * @param personnage
+	 */
+	public Role(String personnage) {
+		super();
+		this.personnage = personnage;
+	}
+
 	@Override
 	public String toString() {
 		return "Role [id=" + id + ", personnage=" + personnage + ", acteur=" + acteur + ", film=" + film + "]";
-	}
-	
-	/** Méthode de recherche du rôle par son personnage
-	 * @param List<Role> roles
-	 * @param String personnage
-	 * @return Role role
-	 */
-	public Role rechercheParNom(List<Role> roles, String personnage) {
-		Role role = null;
-		for(Role r : roles) {
-			if(r.getPersonnage().equals(personnage)) {
-				role = r;
-				break;
-			}
-		}
-		return role;
 	}
 
 	/** Getter

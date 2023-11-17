@@ -1,10 +1,9 @@
 /** Package contenant les Entités */
 package fr.diginamic.Entities;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -35,7 +34,7 @@ public class Realisateur {
 	private String identite;
 	
 	@Column(name = "DATE_NAISSANCE", nullable = false)
-	private Date date_naissance;
+	private LocalDate date_naissance;
 	
 	/** url */
 	@Column(name = "URL", length = 250, nullable = false, unique = true)
@@ -58,6 +57,25 @@ public class Realisateur {
 	 */
 	public Realisateur() {
 	}
+	
+	/** Constructeur
+	 * @param id_imdb
+	 * @param identite
+	 * @param date_naissance
+	 * @param url
+	 * @param lieuNaissance
+	 */
+	public Realisateur(String id_imdb, String identite, LocalDate date_naissance, String url,
+			LieuNaissance lieuNaissance) {
+		super();
+		this.id_imdb = id_imdb;
+		this.identite = identite;
+		this.date_naissance = date_naissance;
+		this.url = url;
+		this.lieuNaissance = lieuNaissance;
+	}
+
+
 
 	@Override
 	public String toString() {
@@ -126,14 +144,14 @@ public class Realisateur {
 	/** Getter
 	 * @return the date_naissance
 	 */
-	public Date getDate_naissance() {
+	public LocalDate getDate_naissance() {
 		return date_naissance;
 	}
 
 	/** Setter
 	 * @param date_naissance the date_naissance to set
 	 */
-	public void setDate_naissance(Date date_naissance) {
+	public void setDate_naissance(LocalDate date_naissance) {
 		this.date_naissance = date_naissance;
 	}
 
