@@ -1,6 +1,9 @@
 /** Package où se trouve la class */
 package fr.diginamic;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -8,6 +11,9 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import fr.diginamic.Entities.Role;
+import fr.diginamic.dao.LangueDaoJpa;
+import fr.diginamic.dao.LieuNaissanceDaoJpa;
+import fr.diginamic.dao.PaysDaoJpa;
 import fr.diginamic.Entities.Acteur;
 import fr.diginamic.Entities.Film;
 import fr.diginamic.Entities.Genre;
@@ -27,19 +33,63 @@ public class ApplicationMiseEnBase {
 	
 		// J'instancie mon lecteur de fichier CSV
 		LecteurCsv lecteurCsv = new LecteurCsv();
-		// Création des mes divers listes d'entités
-		List<Pays> arrayPays = lecteurCsv.parsePays("pays.csv");
-		List<Langue> arrayLangue = lecteurCsv.parseLangue("films.csv");
-		List<Genre> arrayGenre = lecteurCsv.parseGenre("films.csv");
-		List<LieuNaissance> arrayLieuNaissanceRea = lecteurCsv.parseLieuNaissance("realisateurs.csv");
-		List<LieuNaissance> arrayLieuNaissanceAct = lecteurCsv.parseLieuNaissance("acteurs.csv");
-		List<Role> arrayRole = lecteurCsv.parseRole("roles.csv");
-		List<Realisateur> arrayRealisateur = lecteurCsv.parseRealisateur("realisateurs.csv");//, fichierFilmRealisateur
-		List<Acteur> arrayActeur = lecteurCsv.parseActeur("acteurs.csv");
-		System.out.println(arrayActeur);
-//		List<Film> arrayFilms = lecteurCsv.parseFilm(fichierFilm);
-//		EntityManagerFactory emf = Persistence.createEntityManagerFactory("cinema");
-//		EntityManager em = emf.createEntityManager();
-//		EntityTransaction transaction = em.getTransaction();
+		// Instanciation de entityManager
+		EntityManagerFactory emf = Persistence.createEntityManagerFactory("cinema");
+		EntityManager em = emf.createEntityManager();
+		em.getTransaction().begin();
+		
+		// Mise en base des pays :
+		List<Pays> pays = lecteurCsv.parsePays("pays.csv");
+		for(Pays p : pays) {
+			em.persist(p);
+		}
+		
+		// Mise en base des langues :
+		List<Langue> langues = lecteurCsv.parseLangue("films.csv");
+		for(Langue l : langues) {
+			em.persist(l);
+		}
+		
+		// Mise en base des genres :
+		List<Genre> genres = lecteurCsv.parseGenre("films.csv");
+		for(Genre g : genres) {
+			em.persist(g);
+		}
+		
+		// Mise en base des lieuNaissance :
+		List<LieuNaissance> lieuxNaissance = lecteurCsv.parseLieuNaissance("realisateurs.csv", "acteurs.csv");
+		for(LieuNaissance l : lieuxNaissance) {	
+			em.persist(l);
+		}
+		
+		// Mise en base des films :
+		List<Film> films = lecteurCsv.parseFilm("films.csv", pays, langues, genres);
+		for(Film f : films) {
+			em.persist(f);
+		}
+		
+		// Mise en base des acteurs :
+		List<Acteur> acteurs = lecteurCsv.parseActeur("acteurs.csv", lieuxNaissance);
+		for(Acteur a : acteurs) {
+			em.persist(a);
+		}
+		
+		// Mise en base des realisateurs :
+		List<Realisateur> realisateurs = lecteurCsv.parseRealisateur("realisateurs.csv", lieuxNaissance);
+		for(Realisateur r : realisateurs) {
+			em.persist(r);
+		}
+		
+		lecteurCsv.parseCastingPrincipal("castingPrincipal.csv", films, acteurs);
+		lecteurCsv.parseFilmRealisateur("film_realisateurs.csv", films, realisateurs);
+		
+		// Mise en base des rôles :
+		List<Role> roles = lecteurCsv.parseRole("roles.csv", films, acteurs);
+		for(Role r : roles) {
+			em.persist(r);
+		}
+		lecteurCsv.parseCastingPrincipal("castingPrincipal.csv", films, acteurs);
+		lecteurCsv.parseFilmRealisateur("film_realisateurs.csv", films, realisateurs);
+		em.getTransaction().commit();
 	}
 }

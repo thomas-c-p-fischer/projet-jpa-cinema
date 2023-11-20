@@ -34,7 +34,7 @@ public class Acteur {
 	@Column(name = "IDENTITE", length = 50, nullable = false)
 	private String identite;
 	
-	@Column(name = "DATE_NAISSANCE", nullable = false)
+	@Column(name = "DATE_NAISSANCE")
 	private LocalDate date_naissance;
 	
 	/** url */
@@ -81,9 +81,8 @@ public class Acteur {
 
 	@Override
 	public String toString() {
-		return "Acteur [id=" + id + ", id_imdb=" + id_imdb + ", identite=" + identite + ", date_naissance="
-				+ date_naissance + ", url=" + url + ", roles=" + roles + ", films=" + films + ", lieuNaissance="
-				+ lieuNaissance + "]";
+		return "[id_imdb=" + id_imdb + ", identite=" + identite + ", date_naissance="
+				+ date_naissance + ", url=" + url + ", lieuNaissance=" + lieuNaissance + "]";
 	}
 	
 	/** Méthode de recherche d'acteur par l'id IMDB
@@ -91,7 +90,7 @@ public class Acteur {
 	 * @param String idImdb
 	 * @return Acteur acteur
 	 */
-	public Acteur rechercheParImdb(List<Acteur> acteurs, String idImdb) {
+	public static Acteur rechercheParImdb(List<Acteur> acteurs, String idImdb) {
 		Acteur acteur = null;
 		for(Acteur a : acteurs) {
 			if(a.getId_imdb().equals(idImdb)) {

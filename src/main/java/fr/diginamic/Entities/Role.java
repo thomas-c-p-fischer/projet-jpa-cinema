@@ -1,8 +1,6 @@
 /** Package contenant les Entités */
 package fr.diginamic.Entities;
 
-import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -52,7 +50,7 @@ public class Role {
 
 	@Override
 	public String toString() {
-		return "Role [id=" + id + ", personnage=" + personnage + ", acteur=" + acteur + ", film=" + film + "]";
+		return "[personnage=" + personnage + ", acteur=" + acteur + ", film=" + film + "]";
 	}
 
 	/** Getter

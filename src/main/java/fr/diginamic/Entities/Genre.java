@@ -51,7 +51,7 @@ public class Genre {
 
 	@Override
 	public String toString() {
-		return "Genre [id=" + id + ", nom=" + nom + ", films=" + films + "]";
+		return "[nom=" + nom + "]";
 	}
 	
 	/** Méthode de recherche du genre par son nom
@@ -59,7 +59,7 @@ public class Genre {
 	 * @param String nom
 	 * @return Genre genre
 	 */
-	public Genre rechercheParNom(List<Genre> genres, String nom) {
+	public static Genre rechercheParNom(List<Genre> genres, String nom) {
 		Genre genre = null;
 		for(Genre g : genres) {
 			if(g.getNom().equals(nom)) {

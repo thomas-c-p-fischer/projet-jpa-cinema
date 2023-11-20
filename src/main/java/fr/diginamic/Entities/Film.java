@@ -51,7 +51,7 @@ public class Film {
 	private String lieu_tournage;
 	
 	/** resume */
-	@Column(name = "RESUME", length = 350, nullable = false)
+	@Column(name = "RESUME", length = 1000, nullable = false)
 	private String resume;
 	
 	/** roles */
@@ -118,9 +118,9 @@ public class Film {
 
 	@Override
 	public String toString() {
-		return "Film [id=" + id + ", id_imdb=" + id_imdb + ", nom=" + nom + ", annee=" + annee + ", rating=" + rating
+		return "Film [id_imdb=" + id_imdb + ", nom=" + nom + ", annee=" + annee + ", rating=" + rating
 				+ ", url=" + url + ", lieu_tournage=" + lieu_tournage + ", resume=" + resume + ", pays=" + pays + 
-				", langue=" + langue + ", genres=" + genres + "]";
+				", langue=" + langue + "]";
 	}
 	
 	/** Méthode de recherche de films par l'id IMDB
@@ -128,7 +128,7 @@ public class Film {
 	 * @param String idImdb
 	 * @return Film film
 	 */
-	public Film rechercheParImdb(List<Film> films, String idImdb) {
+	public static Film rechercheParImdb(List<Film> films, String idImdb) {
 		Film film = null;
 		for(Film f : films) {
 			if(f.getId_imdb().equals(idImdb)) {

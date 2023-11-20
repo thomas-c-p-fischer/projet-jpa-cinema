@@ -46,7 +46,7 @@ public class Langue {
 
 	@Override
 	public String toString() {
-		return "Langue [id=" + id + ", nom=" + nom + ", films=" + films + "]";
+		return "[nom=" + nom + "]";
 	}
 	
 	/** Méthode de recherche de la langue par son nom
@@ -54,7 +54,7 @@ public class Langue {
 	 * @param String nom
 	 * @return Langue langue
 	 */
-	public Langue rechercheParNom(List<Langue> langues, String nom) {
+	public static Langue rechercheParNom(List<Langue> langues, String nom) {
 		Langue langue = null;
 		for(Langue l : langues) {
 			if(l.getNom().equals(nom)) {

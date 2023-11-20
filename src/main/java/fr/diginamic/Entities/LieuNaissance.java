@@ -2,7 +2,10 @@
 package fr.diginamic.Entities;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -22,7 +25,7 @@ public class LieuNaissance {
 	private Integer id;
 	
 	/** nom */
-	@Column(name = "NOM", length = 200, nullable = false, unique = true)
+	@Column(name = "NOM", length = 500, unique = true)
 	private String nom;
 	
 	/** acteurs */
@@ -49,8 +52,7 @@ public class LieuNaissance {
 
 	@Override
 	public String toString() {
-		return "LieuNaissance [id=" + id + ", nom=" + nom + ", acteurs=" + acteurs + ", realisateurs=" + realisateurs
-				+ "]";
+		return "[nom=" + nom + "]";
 	}
 
 	/** Méthode de recherche du lieu de naissance par son nom
@@ -59,16 +61,31 @@ public class LieuNaissance {
 	 * @return LieuNaissance lieuNaissance
 	 */
 	public static LieuNaissance rechercheParNom(List<LieuNaissance> lieuNaissances, String nom) {
-		LieuNaissance lieuNaissance = null;
 		for(LieuNaissance l : lieuNaissances) {
 			if(l.getNom().equals(nom)) {
-				lieuNaissance = l;
-				break;
+					return l;
 			}
 		}
-		return lieuNaissance;
+		return null;
 	}
 	
+	@Override
+	public int hashCode() {
+		return Objects.hash(nom);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		LieuNaissance other = (LieuNaissance) obj;
+		return Objects.equals(nom, other.nom);
+	}
+
 	/** Getter
 	 * @return the id
 	 */

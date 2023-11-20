@@ -8,9 +8,9 @@ import java.io.InputStreamReader;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
-
 import fr.diginamic.Entities.Acteur;
 import fr.diginamic.Entities.Film;
 import fr.diginamic.Entities.Genre;
@@ -22,12 +22,6 @@ import fr.diginamic.Entities.Role;
 
 /** Nom de la classe */
 public class LecteurCsv {
-
-	List<LieuNaissance> lieuNaissanceActeur = new ArrayList<>();
-	List<LieuNaissance> lieuNaissanceRealisateur = new ArrayList<>();
-	List<Genre> arrayGenre = new ArrayList<>();
-	List<Langue> arrayLangue = new ArrayList<>();
-	List<Pays> arrayPays = new ArrayList<>();
 
 	/** Méthode de parsing du fichier pays.csv
 	 * @param nomFichier
@@ -48,14 +42,10 @@ public class LecteurCsv {
 			lecteur.readLine();
 			while ((ligne = lecteur.readLine()) != null) {
 				String[] colonnes = ligne.split(";");
-				if (colonnes.length == 2) {
-					String nom = colonnes[0].trim();
-					String url = colonnes[1].trim();
+					String nom = colonnes[0];
+					String url = colonnes[1];
 					Pays pays = new Pays(nom, url);
 					donneesPays.add(pays);
-				} else {
-					System.err.println("Ligne incorrecte dans le fichier CSV: " + ligne);
-				}
 			}
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
@@ -99,21 +89,64 @@ public class LecteurCsv {
 		}
 		return langues;
 	}
+	
+	/** Méthode pour parseLieuNaissance
+	 * @param fichierActeur
+	 * @return List<String>
+	 */
+	public List<String> parseStringLieuNaissance(String fichierActeur) { 
+		
+		List<String> stringLieuNaissance = new ArrayList<>();
+		ClassLoader cl = getClass().getClassLoader();
+		InputStream is = cl.getResourceAsStream(fichierActeur);
+
+		if (is == null) {
+			throw new RuntimeException("Le fichier .csv n'a pas été trouvé: " + fichierActeur);
+		}
+
+		try (BufferedReader lecteur = new BufferedReader(new InputStreamReader(is))) {
+			String line;
+			lecteur.readLine();
+			while ((line = lecteur.readLine()) != null) {
+				String[] colonnes = line.split(";");
+				String lieuNaissance = colonnes[3];
+				lieuNaissance = lieuNaissance.replaceAll("é", "e");
+				lieuNaissance = lieuNaissance.replaceAll("è", "e");
+				lieuNaissance = lieuNaissance.replaceAll("Î", "I");
+				lieuNaissance = lieuNaissance.replaceAll("ü", "u");
+				lieuNaissance = lieuNaissance.trim();
+				if(!lieuNaissance.isEmpty()) {
+					lieuNaissance = lieuNaissance.substring(0, 1).toUpperCase() + lieuNaissance.substring(1);
+				}
+				if (!lieuNaissance.isEmpty()) {					
+					if (!stringLieuNaissance.contains(lieuNaissance)) {
+						stringLieuNaissance.add(lieuNaissance);
+					}
+				}
+			}
+
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+			throw new RuntimeException("Une erreur est survenue lors de la lecture du ficher .csv.");
+		}
+		return stringLieuNaissance;
+	}
 
 	/** Méthode de parsing du fichier acteurs.csv et realisateurs.csv pour récupérer
 	 * les lieux de naissances
-	 * @param nomFichier
-	 * @return List<LieuNaissance>
+	 * @param fichierReal
+	 * @param fichierAct
+	 * @return
 	 */
-	public List<LieuNaissance> parseLieuNaissance(String nomFichier) {
-
-		List<LieuNaissance> lieuNaissances = new ArrayList<>();
+	public List<LieuNaissance> parseLieuNaissance(String fichierReal, String fichierAct) {
+		
+		List<LieuNaissance> lieuxNaissances = new ArrayList<>();
 		List<String> donneesLieuNaissance = new ArrayList<>();
 		ClassLoader cl = getClass().getClassLoader();
-		InputStream is = cl.getResourceAsStream(nomFichier);
+		InputStream is = cl.getResourceAsStream(fichierReal);
 
 		if (is == null) {
-			throw new RuntimeException("Le fichier .csv n'a pas été trouvé: " + nomFichier);
+			throw new RuntimeException("Le fichier .csv n'a pas été trouvé: " + fichierReal);
 		}
 
 		try (BufferedReader lecteur = new BufferedReader(new InputStreamReader(is))) {
@@ -121,20 +154,34 @@ public class LecteurCsv {
 			lecteur.readLine();
 			while ((ligne = lecteur.readLine()) != null) {
 				String[] colonnes = ligne.split(";");
-				String lieux = colonnes[3].trim();
-				if (!lieux.isEmpty()) {
-					if (!donneesLieuNaissance.contains(lieux)) {
-						donneesLieuNaissance.add(lieux);
-						LieuNaissance lieuNaissance = new LieuNaissance(lieux);
-						lieuNaissances.add(lieuNaissance);
+				String nomLieu = colonnes[3];
+				nomLieu = nomLieu.replaceAll("é", "e");
+				nomLieu = nomLieu.replaceAll("è", "e");
+				nomLieu = nomLieu.replaceAll("Î", "I");
+				nomLieu = nomLieu.replaceAll("ü", "u");
+				nomLieu = nomLieu.trim();
+				if(!nomLieu.isEmpty()) {
+					nomLieu = nomLieu.substring(0, 1).toUpperCase() + nomLieu.substring(1);
+				}
+				LecteurCsv lectureCsv = new LecteurCsv();
+				donneesLieuNaissance = lectureCsv.parseStringLieuNaissance(fichierAct);
+				if (!nomLieu.isEmpty()) {
+					if (!donneesLieuNaissance.contains(nomLieu)) {
+						
+						donneesLieuNaissance.add(nomLieu);
 					}
 				}
 			}
+			System.out.println(donneesLieuNaissance);
 		} catch (IOException e) {
 			System.err.println(e.getMessage());
 			throw new RuntimeException("Une erreur est survenue lors de la lecture du ficher .csv.");
 		}
-		return lieuNaissances;
+		for(String lieuNaissance : donneesLieuNaissance) {
+			LieuNaissance nouveauLieuNaissance = new LieuNaissance(lieuNaissance);
+			lieuxNaissances.add(nouveauLieuNaissance);
+		}
+		return lieuxNaissances;
 	}
 
 	/** Méthode de parsing du fichier films.csv pour récupérer les langues
@@ -180,37 +227,40 @@ public class LecteurCsv {
 	}
 
 	/** Méthode de parsing du fichier role.csv
-	 * @param nomFichier
-	 * @return List<Role>
+	 * @param fichierRole
+	 * @param films
+	 * @param acteurs
+	 * @return
 	 */
-	public List<Role> parseRole(String nomFichier) {
+	public List<Role> parseRole(String fichierRole, List<Film> films, List<Acteur> acteurs) {
 
 		List<Role> roles = new ArrayList<>();
 		ClassLoader cl = getClass().getClassLoader();
-		InputStream is = cl.getResourceAsStream(nomFichier);
+		InputStream is = cl.getResourceAsStream(fichierRole);
 
 		if (is == null) {
-			throw new RuntimeException("Le fichier .csv n'a pas été trouvé: " + nomFichier);
+			throw new RuntimeException("Le fichier .csv n'a pas été trouvé: " + fichierRole);
 		}
 
 		try (BufferedReader lecteur = new BufferedReader(new InputStreamReader(is))) {
 			String line;
 			lecteur.readLine();
 			while ((line = lecteur.readLine()) != null) {
-				String[] colonnes = line.split(";");
-				if (colonnes.length == 3) {
+				String[] colonnes = line.split(";", -1);
+
+					String idmbFilm = colonnes[0];
+					String idmbActeur = colonnes[1];
 					String nomRole = colonnes[2];
+					Film actuelFilm = Film.rechercheParImdb(films, idmbFilm);
+					Acteur actuelActeur = Acteur.rechercheParImdb(acteurs, idmbActeur);
 					Role role = new Role(nomRole);
-					roles.add(role);
-				} else {
-					Role role = new Role("Rôle non précisé");
-					roles.add(role);
-				}
+					if(actuelFilm != null && actuelActeur != null) {
+						role.setFilm(actuelFilm);
+						role.setActeur(actuelActeur);
+						roles.add(role);
+					}			
 			}
-
-		} catch (
-
-		IOException e) {
+		} catch (IOException e) {
 			System.err.println(e.getMessage());
 			throw new RuntimeException("Une erreur est survenue lors de la lecture du ficher .csv.");
 		}
@@ -220,9 +270,10 @@ public class LecteurCsv {
 	//, String fichierFiReal
 	/** Méthode de parsing du fichier realisateurs.csv
 	 * @param fichierReal
-	 * @return List<Realisateur>
+	 * @param lieuxNaissances
+	 * @return
 	 */
-	public List<Realisateur> parseRealisateur(String fichierReal) {
+	public List<Realisateur> parseRealisateur(String fichierReal, List<LieuNaissance> lieuxNaissances) {
 		List<Realisateur> realisateurs = new ArrayList<>();
 		ClassLoader cl = getClass().getClassLoader();
 		InputStream is = cl.getResourceAsStream(fichierReal);
@@ -249,11 +300,7 @@ public class LecteurCsv {
 				}
 				String lieuNaissance = colonnes[3].trim();
 				String url = colonnes[4];
-				if (lieuNaissanceRealisateur.isEmpty()) {
-					LecteurCsv lecteurCSV = new LecteurCsv();
-					lieuNaissanceRealisateur = lecteurCSV.parseLieuNaissance(fichierReal);
-				}
-				LieuNaissance lieuNaissanceActuel = LieuNaissance.rechercheParNom(lieuNaissanceRealisateur,
+				LieuNaissance lieuNaissanceActuel = LieuNaissance.rechercheParNom(lieuxNaissances,
 						lieuNaissance);
 				Realisateur actuelRealisateur = new Realisateur(imdb, identite, dateNaissance, url, lieuNaissanceActuel);
 				realisateurs.add(actuelRealisateur);
@@ -265,7 +312,12 @@ public class LecteurCsv {
 		return realisateurs;
 	}
 	
-	public List<Acteur> parseActeur(String fichierAct) {
+	/** Méthode de parsing du fichier acteurs.csv
+	 * @param fichierAct
+	 * @param lieuxNaissances
+	 * @return
+	 */
+	public List<Acteur> parseActeur(String fichierAct, List<LieuNaissance> lieuxNaissances) {
 		List<Acteur> acteurs = new ArrayList<>();
 		ClassLoader cl = getClass().getClassLoader();
 		InputStream is = cl.getResourceAsStream(fichierAct);
@@ -283,20 +335,15 @@ public class LecteurCsv {
 				String identite = colonnes[1];
 				LocalDate dateNaissance = null;
 				if (!colonnes[2].isEmpty()) {
-					try {
-						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MMMM d yyyy ", Locale.ENGLISH);
+					if(!colonnes[2].contains("-")){
+						DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy", Locale.ENGLISH);
 						dateNaissance = LocalDate.parse(colonnes[2], formatter);
-					} catch (Exception e) {
-
 					}
 				}
 				String lieuNaissance = colonnes[3].trim();
 				String url = colonnes[4];
-				if (lieuNaissanceActeur.isEmpty()) {
-					LecteurCsv lecteurCSV = new LecteurCsv();
-					lieuNaissanceActeur = lecteurCSV.parseLieuNaissance(fichierAct);
-				}
-				LieuNaissance lieuNaissanceActuel = LieuNaissance.rechercheParNom(lieuNaissanceActeur,
+			
+				LieuNaissance lieuNaissanceActuel = LieuNaissance.rechercheParNom(lieuxNaissances,
 						lieuNaissance);
 				Acteur actuelActeur = new Acteur(imdb, identite, dateNaissance, url, lieuNaissanceActuel);
 				acteurs.add(actuelActeur);
@@ -308,61 +355,146 @@ public class LecteurCsv {
 		return acteurs;
 	}
 
-//	public List<Film> parseFilm(String nomFichier) {
-//
-//        List<Film> donneesFilms = new ArrayList<>();
-//        ClassLoader cl = getClass().getClassLoader();
-//        InputStream is = cl.getResourceAsStream(nomFichier);
-//
-//        if (is == null) {
-//            throw new RuntimeException("Le fichier .csv n'a pas été trouvé: " + nomFichier);
-//        }
-//
-//        try (BufferedReader lecteur = new BufferedReader(new InputStreamReader(is))) {
-//            String line;
-//            lecteur.readLine();
-//            while ((line = lecteur.readLine()) != null) {
-//                String[] tokens = line.split(";");
-//                System.out.println(line);
-//                
-//                if (tokens.length > 10) {
-//                    tokens[8] = tokens[8] + tokens[9];
-//                    tokens[9] = tokens[10];
-//                    System.out.println(tokens[8]);
-//                }
-//
+	/** Méthode de parsing du fichier films.csv
+	 * @param fichierFilm
+	 * @param pays
+	 * @param langues
+	 * @param genres
+	 * @return
+	 */
+	public List<Film> parseFilm(String fichierFilm, List<Pays> pays, List<Langue> langues,
+			List<Genre> genres) {
 
-//                if (tokens.length == 9) {
-//
-//                    pays = "Pas de pays";
-//
-//                } else {
-//
-//                    pays = tokens[9];
-//                }
-//
-//                String idImdb = tokens[0];
-//                System.out.println(idImdb);
-//                String nom = tokens[1];
-//                String annee = tokens[2];
-//                String rating = tokens[3];
-//                String url = tokens[4];
-//                String lieuTournage = tokens[5];
-//                String genre = tokens[6];
-//                String langue = tokens[7];
-//                String resume = tokens[8];
-//
-//                Film actuelFilm = new Film(idImdb, nom, annee, rating, url, lieuTournage, resume);
-//
-//                donneesFilms.add(actuelFilm);
-//            }
-//
-//        } catch (
-//
-//        IOException e) {
-//            System.err.println(e.getMessage());
-//            throw new RuntimeException("Une erreur est survenue lors de la lecture du ficher .csv.");
-//        }
-//        return donneesFilms;
-//    }
+		List<Film> films = new ArrayList<>();
+		ClassLoader cl = getClass().getClassLoader();
+		InputStream is = cl.getResourceAsStream(fichierFilm);
+
+		if (is == null) {
+			throw new RuntimeException("Le fichier .csv n'a pas été trouvé: " + fichierFilm);
+		}
+
+		try (BufferedReader lecteur = new BufferedReader(new InputStreamReader(is))) {
+			String line;
+			lecteur.readLine();
+			while ((line = lecteur.readLine()) != null) {
+				String[] colonnes = line.split(";");
+				if (colonnes.length > 10) {
+					colonnes[8] = colonnes[8] + colonnes[9];
+					colonnes[9] = colonnes[10];
+				}
+				String nomPays = null;
+				if (colonnes.length == 9) {
+					nomPays = "Pas de pays";
+				} else {
+					nomPays = colonnes[9];
+				}
+				String idImdb = colonnes[0];
+				String nom = colonnes[1];
+				String annee = colonnes[2];
+				String rating = colonnes[3];
+				String url = colonnes[4];
+				String lieuTournage = colonnes[5];
+				String ligneGenre = colonnes[6];
+				String langue = colonnes[7];
+				String resume = colonnes[8];
+
+				Pays actuelPays = Pays.rechercheParNom(pays, nomPays);
+				Langue actuelLangue = Langue.rechercheParNom(langues, langue);
+
+				List<Genre> arrayActuelGenre = new ArrayList<>();
+				String[] listGenre = ligneGenre.split(",");
+				for (String g : listGenre) {
+					Genre actuelGenre = Genre.rechercheParNom(genres, g);
+					arrayActuelGenre.add(actuelGenre);
+				}
+
+				Film actuelFilm = new Film(idImdb, nom, annee, rating, url, lieuTournage, resume);
+				actuelFilm.setLangue(actuelLangue);
+				actuelFilm.setGenres(arrayActuelGenre);
+				actuelFilm.setPays(actuelPays);
+
+				films.add(actuelFilm);
+			}
+
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+			throw new RuntimeException("Une erreur est survenue lors de la lecture du ficher .csv.");
+		}
+		return films;
+	}
+	
+	/** Métode de parsing du fichier castingPrincipal.csv
+	 * @param fichierCastingPrincipal
+	 * @param films
+	 * @param acteurs
+	 */
+	public void parseCastingPrincipal(String fichierCastingPrincipal, List<Film> films, List<Acteur> acteurs) {
+
+		ClassLoader cl = getClass().getClassLoader();
+		InputStream is = cl.getResourceAsStream(fichierCastingPrincipal);
+
+		if (is == null) {
+			throw new RuntimeException("Le fichier .csv n'a pas été trouvé: " + fichierCastingPrincipal);
+		}
+
+		try (BufferedReader lecteur = new BufferedReader(new InputStreamReader(is))) {
+			String line;
+			lecteur.readLine();
+			while ((line = lecteur.readLine()) != null) {
+				String[] colonnes = line.split(";");
+				String idbmFilm = colonnes[0];
+				String idbmActeur = colonnes[1];
+
+				Film actuelFilm = Film.rechercheParImdb(films, idbmFilm);
+
+				Acteur actuelActeur = Acteur.rechercheParImdb(acteurs, idbmActeur);
+
+				if (actuelFilm != null && actuelActeur != null) {
+					actuelFilm.getActeurs().add(actuelActeur);
+					actuelActeur.getFilms().add(actuelFilm);
+				}
+			}
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+			throw new RuntimeException("Une erreur est survenue lors de la lecture du ficher .csv.");
+		}
+	}
+	
+	/** Méthode de parsingn du fichier film_realisateur.csv
+	 * @param pathFile
+	 * @param pathFilm
+	 * @param pathRealisateur
+	 */
+	public void parseFilmRealisateur(String fichierFilmReal, List<Film> films, List<Realisateur> realisateurs) {
+
+		ClassLoader cl = getClass().getClassLoader();
+		InputStream is = cl.getResourceAsStream(fichierFilmReal);
+
+		if (is == null) {
+			throw new RuntimeException("Le fichier .csv n'a pas été trouvé: " + fichierFilmReal);
+		}
+
+		try (BufferedReader lecteur = new BufferedReader(new InputStreamReader(is))) {
+			String line;
+			lecteur.readLine();
+			while ((line = lecteur.readLine()) != null) {
+				String[] tokens = line.split(";");
+				String idbmFilm = tokens[0];
+				String idbmRealisateur = tokens[1];
+
+				Film actuelFilm = Film.rechercheParImdb(films, idbmFilm);
+
+				Realisateur actuelRealisateur = Realisateur.rechercheParImdb(realisateurs, idbmRealisateur);
+
+				if (actuelFilm != null && actuelRealisateur != null) {
+					actuelFilm.getRealisateurs().add(actuelRealisateur);
+					actuelRealisateur.getFilms().add(actuelFilm);
+				}
+
+			}
+		} catch (IOException e) {
+			System.err.println(e.getMessage());
+			throw new RuntimeException("Une erreur est survenue lors de la lecture du ficher .csv.");
+		}
+	}
 }

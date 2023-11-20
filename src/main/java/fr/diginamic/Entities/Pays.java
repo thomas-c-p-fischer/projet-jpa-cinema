@@ -52,7 +52,7 @@ public class Pays {
 
 	@Override
 	public String toString() {
-		return "Pays [id=" + id + ", nom=" + nom + ", url=" + url + ", films=" + films + "]";
+		return "[nom=" + nom + ", url=" + url + "]";
 	}
 	
 	/** Méthode de recherche du pays par son nom
@@ -60,7 +60,7 @@ public class Pays {
 	 * @param String nom
 	 * @return Pays pays
 	 */
-	public Pays rechercheParNom(List<Pays> listPays, String nom) {
+	public static Pays rechercheParNom(List<Pays> listPays, String nom) {
 		Pays pays = null;
 		for(Pays p : listPays) {
 			if(p.getNom().equals(nom)) {
