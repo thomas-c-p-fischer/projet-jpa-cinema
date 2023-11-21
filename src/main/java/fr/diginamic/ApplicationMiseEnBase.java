@@ -1,19 +1,11 @@
 /** Package où se trouve la class */
 package fr.diginamic;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
-
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.EntityTransaction;
 import javax.persistence.Persistence;
 import fr.diginamic.Entities.Role;
-import fr.diginamic.dao.LangueDaoJpa;
-import fr.diginamic.dao.LieuNaissanceDaoJpa;
-import fr.diginamic.dao.PaysDaoJpa;
 import fr.diginamic.Entities.Acteur;
 import fr.diginamic.Entities.Film;
 import fr.diginamic.Entities.Genre;

@@ -451,7 +451,6 @@ public class LecteurCsv {
 
 				if (actuelFilm != null && actuelActeur != null) {
 					actuelFilm.getActeurs().add(actuelActeur);
-					actuelActeur.getFilms().add(actuelFilm);
 				}
 			}
 		} catch (IOException e) {
@@ -488,7 +487,6 @@ public class LecteurCsv {
 
 				if (actuelFilm != null && actuelRealisateur != null) {
 					actuelFilm.getRealisateurs().add(actuelRealisateur);
-					actuelRealisateur.getFilms().add(actuelFilm);
 				}
 
 			}
